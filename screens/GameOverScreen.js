@@ -1,24 +1,44 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import Titile from "../components/ui/Title";
 import Colors from "../constans/Colors";
 import PrimaryButtons from "../components/ui/PrimaryButton";
 
 function GameOver({roundsNumber,userNumber,onStartNewGame}) {
+    const {width,height} = useWindowDimensions();
+    let imagesize =300
+
+    if (width <380){
+        imagesize=150
+    }
+    if (height <400) imagesize=80
+
+    const imgStyle = {
+        width:imagesize,
+        height:imagesize,
+        borderRadius:imagesize /2
+    }
     return (
+        <ScrollView style={style.screen}>
         <View style={style.rootContainer}>
             <Titile>GAME OVER!</Titile>
-            <View style={style.imageContainer}>
-                <Image source={require('../assets/Images/success.png')} />
+            <View style={[style.imageContainer,imgStyle]}>
+                <Image source={require('../assets/Images/success.png')}  />
             </View >
             <Text style={style.summeryText}>Your phone needed <Text style={style.highlight}>{roundsNumber}</Text> rounds to guess the number <Text style={style.highlight}>{userNumber}</Text>.</Text>
             <PrimaryButtons onPress={onStartNewGame}>Start New Game</PrimaryButtons>
         </View>
+        </ScrollView>
     )
 }
 
 export default GameOver;
 
+
+
 const style = StyleSheet.create({
+    screen:{
+        flex:1
+    },
     rootContainer: {
         flex: 1,
         padding: 24,
@@ -27,9 +47,6 @@ const style = StyleSheet.create({
         alignItems: 'center'
     },
     imageContainer: {
-        width: 300,
-        height: 300,
-        borderRadius: 150,
         borderWidth: 3,
         borderColor: Colors.primary800,
         overflow: 'hidden',
