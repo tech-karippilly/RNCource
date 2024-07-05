@@ -1,26 +1,33 @@
-import { useLayoutEffect } from "react";
-import { Button, Image, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useContext, useLayoutEffect } from "react";
+import {  Image,  ScrollView, StyleSheet, Text, View } from "react-native";
 import { MEALS } from "../data/dummy-data";
 import MealDetails from "../componets/MealDetails";
 import SubTitle from "../componets/MealDetails/SubTitle";
 import List from "../componets/MealDetails/List";
 import IconButton from "../componets/IconButton";
-
+import {useSelector,useDispatch} from 'react-redux'
+import { addFavirotes, removeFavaorate } from "../store/redux/favorates";
 function MealsDetailsScreen({ route, navigation }) {
+    const favoratesMealsIds = useSelector(state=>state.favorateMeals.ids)
+    const dispatch = useDispatch()
     const mealId = route.params.mealId;
-    console.log(mealId);
 
-    function headerButtonPressHandler(){
-        
+    const mealsFavorates = favoratesMealsIds.includes(mealId)
+    function changeFavorateSatausHandler(){
+        if (mealsFavorates){
+            dispatch(removeFavaorate({id:mealId}))
+        }else{
+            dispatch(addFavirotes({id:mealId}))
+        } 
     }
     useLayoutEffect(() => {
         navigation.setOptions({
             headerRight:()=>{
-                return <IconButton icon={'star'} color={'white'} onOnPress={headerButtonPressHandler}/>
+                return <IconButton icon={mealsFavorates ? 'star':'star-outline'} color={'white'} OnPress={changeFavorateSatausHandler}/>
             }
         })
 
-    }, [navigation, headerButtonPressHandler])
+    }, [navigation, changeFavorateSatausHandler])
     const selectedMelas = MEALS.find((catagores) => catagores.id === mealId)
     const { title, imageUrl, duration, complexity, affordability } = selectedMelas
 
