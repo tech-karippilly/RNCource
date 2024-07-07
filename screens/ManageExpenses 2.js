@@ -1,85 +1,43 @@
-import { useContext, useLayoutEffect, useState } from "react";
+import { useContext, useLayoutEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import IconButton from "../components/UI/IconButton";
 import { GlobalStyles } from "../components/styles";
 import Button from "../components/UI/Button";
 import { ExpensesContext } from "../store/expenses-context";
 import ExpesesFrom from "../components/ManageExpense/ExpensesForm";
-import { deleteExpensses, storeExpense, updateExpensses } from "../Util/http";
-import LoadingOverLay from "../components/UI/LoadingOverLay";
-import ErroOverLay from "../components/UI/ErrorOverlay";
 
 function ManageExpenses({ navigation, route }) {
     const expenseCtx = useContext(ExpensesContext)
     const expenseId = route.params?.expenseId
     const isEdited = !!expenseId
-    const selectedExpenses = expenseCtx.expenses.find((expenses) => expenses.id === expenseId)
-    const [isFetching, setIsFetching] = useState(false)
-    const [error,setError] = useState()
+    const selectedExpenses = expenseCtx.expenses.find((expenses)=>expenses.id ===expenseId )
     useLayoutEffect(() => {
         navigation.setOptions({
             title: isEdited ? 'Edit Expenses' : 'Add Expenses'
         })
     }, [navigation, isEdited])
-    async function deleteExpensesHandler() {
-        setIsFetching(true)
-        try{
-            await deleteExpensses(expenseId)
-            expenseCtx.deletExpense(expenseId)
-        }catch(error){
-            setError('Error in Deleting')
-        }
-        
-        setIsFetching(false)
-       
-
+    function deleteExpensesHandler() {
+        expenseCtx.deletExpense(expenseId)
         navigation.goBack()
     }
     function cancelHandler() {
         navigation.goBack()
     }
-    async function confrimHandler(expenseData) {
+    function confrimHandler(expenseData) {
         if (isEdited) {
             expenseCtx.updateExpense(
                 expenseId,
                 expenseData
             )
-            setIsFetching(true)
-            try{
-                await updateExpensses(expenseId, expenseData)
-                
-            }catch(error){
-                setError('Error in Updating')
-            }
-            
-            setIsFetching(false)
         } else {
-            setIsFetching(true)
-            try{
-                const id = await storeExpense(expenseData)
-                expenseCtx.addExpense({ ...expenseData, id: id })
-            }catch(error){
-                setError('Error in Adding')
-            }
-           
-            setIsFetching(false)
-            
+            expenseCtx.addExpense(expenseData)
         }
         navigation.goBack()
     }
-    if (isFetching) {
-        return <LoadingOverLay />
-    }
-    function errorHandler(){
-        setError(null)
-    }
-    if (error && !isFetching){
-        return <ErroOverLay  message={error} onConfirm={errorHandler}/>
-    }
     return (
         <View style={style.container}>
-            <ExpesesFrom defaultValues={selectedExpenses} onSubmit={confrimHandler} onCancel={cancelHandler} buttonText={isEdited ? 'Update' : 'Add'} />
-
+            <ExpesesFrom defaultValues={selectedExpenses} onSubmit={confrimHandler} onCancel={cancelHandler} buttonText={isEdited ? 'Update' : 'Add'}/>
+            
             {isEdited &&
                 <View style={style.deleteContainer}>
                     <IconButton iconName={'trash'} color={GlobalStyles.colors.error500} size={36} OnPress={deleteExpensesHandler} />
